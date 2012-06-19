@@ -1,5 +1,10 @@
-(function(){
 var connect = __meteor_bootstrap__.require("connect");
+Meteor.seo_cache = new Meteor.Collection(
+  "seo_cache",
+  null /*manager*/,
+  null /*driver*/,
+  true /*preventAutopublish*/);
+Meteor.seo_index = [];
 var supported_browser = function (user_agent) {
   var supportlist =[  
                 "Teoma",                    
@@ -74,28 +79,17 @@ __meteor_bootstrap__.app
     }).run();
 });
 
-Meteor.seo_cache = new Meteor.Collection(
-  "seo_cache",
-  null /*manager*/,
-  null /*driver*/,
-  true /*preventAutopublish*/);
 Meteor.methods({
-	"add_update_seo" : function(link,html,title,md5){
-		console.log("boom");
-		if(title != ""){
-			if(link =="/"){
-				link = "/" + title;
+	"update_seo" : function(){
+		for(s in Meteor.seo_index){
+
+			var html = Meteor.seo_index[s].function();
+			if(Meteor.seo_cache.find({url : Meteor.seo_index[s].link, title : Meteor.seo_index[s].title}).count()>0){
+				Meteor.seo_cache.update({url : Meteor.seo_index[s].link, title : Meteor.seo_index[s].title}, {html : html , md5 : MD5(html)}); 
 			}else{
-				link = link  + "/" +title;
+				Meteor.seo_cache.insert({url : Meteor.seo_index[s].link , title : Meteor.seo_index[s].title, html : html , md5 : MD5(html)});
 			}
-			
 		}
-		if(Meteor.seo_cache.find({url : link}).count()>0){
-			console.log(Meteor.seo_cache.update({url : link, md5:{$ne : md5}} , {html : html, md5 : md5}));
-		}else{
-			console.log(Meteor.seo_cache.insert({url : link , html : html , title : title,md5 : md5}));
-		}		
 	}
 });
 
-})();

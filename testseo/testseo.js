@@ -12,13 +12,13 @@ if (Meteor.is_client) {
     }
   };
   Meteor.startup(function(){
-    Meteor.autoUpdateSeo();
+    //Meteor.autoUpdateSeo();
   });
   
 }
 
 if (Meteor.is_server) {
-  Meteor.startup(function () {
-    // code to run on server at startup
-  });
+  Meteor.seo_index.push({title : "" , link : "/" , function : function(){
+    return "<html><head></head><body>index</body></html>";
+  }});
 }

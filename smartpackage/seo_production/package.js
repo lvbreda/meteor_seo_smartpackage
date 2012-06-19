@@ -13,6 +13,8 @@ Package.describe({
 
 Package.on_use(function (api) {
   api.use(['mongo-livedata']);
+  api.use('seo_live');
+
   api.add_files('server.js', 'server');
   api.add_files('client.js', 'client');
 });
