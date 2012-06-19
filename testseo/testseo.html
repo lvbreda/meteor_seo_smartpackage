@@ -1,0 +1,29 @@
+<head>
+  <title>dbadmin</title>
+</head>
+
+<body>
+  {{> hello}}
+  {{> collections}}
+  {{> newDB}}
+</body>
+
+<template name="hello">
+  <h1>Meteor UI Admin</h1>
+</template>
+
+<template name="collections">
+  {{#each collection}}
+    <p> {{name}} </p>
+  {{/each}}
+</template>
+
+<template name="newDB">
+	<div id="newDB">
+		<p>New Collection Name:</p>
+		<input type="text" id="NewCollectionName" value="Name" />
+		<input type="button" class="new" value="New Collection" />
+		<p>{{error}}</p>
+	</div>
+
+</template>
