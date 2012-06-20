@@ -18,7 +18,5 @@ if (Meteor.is_client) {
 }
 
 if (Meteor.is_server) {
-  Meteor.seo_index.push({title : "" , link : "/" , function : function(){
-    return "<html><head></head><body>index</body></html>";
-  }});
+  Meteor.seo_index.push({title : "" , link : "/"});
 }

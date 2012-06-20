@@ -1,4 +1,8 @@
 var connect = __meteor_bootstrap__.require("connect");
+var Browser = __meteor_bootstrap__.require("zombie");
+var inside_port = 3000;
+Browser.site = "http://localhost:" + inside_port;
+var temp_count = [];
 Meteor.seo_cache = new Meteor.Collection(
   "seo_cache",
   null /*manager*/,
@@ -45,51 +49,67 @@ __meteor_bootstrap__.app
     .use(function (req, res, next) {
       // Need to create a Fiber since we're using synchronous http calls
       Fiber(function() {
-      	if(!supported_browser(req.headers['user-agent'])){
-      		Mongo = new Meteor._Mongo(__meteor_bootstrap__.mongo_url);
+        if(!supported_browser(req.headers['user-agent'])){
+          Mongo = new Meteor._Mongo(__meteor_bootstrap__.mongo_url);
 
-      		var i = Mongo.findOne("seo_cache",{url : req.url});
-      		if(i){
-	      		res.writeHead(200, {'Content-Type': 'text/html'});
-	      			res.write(i.html.replace("</body>","").replace("</html>",""));
-	      		var o = Mongo.find("seo_cache");
-	      		o.forEach(function(u){
-	      			if(u.url!= "undefined" && u.url){
-	      				res.write("<a href='" + u.url + "' >" + u.title + "</a>" );
-	      			}
-	      		});
-	      		res.write("</body></html>")
-	      		res.end();
-      		}else{
-      			
-      			res.writeHead(200, {'Content-Type': 'text/html'});
-	      		var o = Mongo.find("seo_cache");
-	      		o.forEach(function(u){
-	      			if(u.url!= "undefined" && u.url){
-	      				res.write("<a href='" + u.url + "' >" + u.title + "</a>" );
-	      			}
-	      		});
-	      		res.end();
-      		}
-      		return;
-      	}else{
-      		next();
-      		return;
-      	}
+          var i = Mongo.findOne("seo_cache",{url : req.url});
+          if(i){
+            res.writeHead(200, {'Content-Type': 'text/html'});
+              res.write(i.html.replace("</body>","").replace("</html>",""));
+            var o = Mongo.find("seo_cache");
+            o.forEach(function(u){
+              if(u.url!= "undefined" && u.url){
+                res.write("<a href='" + u.url + "' >" + u.title + "</a>" );
+              }
+            });
+            res.write("</body></html>")
+            res.end();
+          }else{
+            
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            var o = Mongo.find("seo_cache");
+            o.forEach(function(u){
+              if(u.url!= "undefined" && u.url){
+                res.write("<a href='" + u.url + "' >" + u.title + "</a>" );
+              }
+            });
+            res.end();
+          }
+          return;
+        }else{
+          next();
+          return;
+        }
     }).run();
 });
 
 Meteor.methods({
-	"update_seo" : function(){
-		for(s in Meteor.seo_index){
-
-			var html = Meteor.seo_index[s].function();
-			if(Meteor.seo_cache.find({url : Meteor.seo_index[s].link, title : Meteor.seo_index[s].title}).count()>0){
-				Meteor.seo_cache.update({url : Meteor.seo_index[s].link, title : Meteor.seo_index[s].title}, {html : html , md5 : MD5(html)}); 
-			}else{
-				Meteor.seo_cache.insert({url : Meteor.seo_index[s].link , title : Meteor.seo_index[s].title, html : html , md5 : MD5(html)});
-			}
-		}
-	}
-});
+  "update_seo" : function(){
+    
+    Fiber(function(){
+      for(s in Meteor.seo_index){
+        if(Meteor.seo_index[s].function){
+          var html = Meteor.seo_index[s].function();
+          if(Meteor.seo_cache.find({url : Meteor.seo_index[s].link, title : Meteor.seo_index[s].title}).count()>0){
+            Meteor.seo_cache.update({url : Meteor.seo_index[s].link, title : Meteor.seo_index[s].title}, {html : html , md5 : MD5(html)}); 
+          }else{
+            Meteor.seo_cache.insert({url : Meteor.seo_index[s].link , title : Meteor.seo_index[s].title, html : html , md5 : MD5(html)});
+          }
+        }else{
+          browser = new Browser();
+          var s = s;
+          console.log(s);
+          browser.visit(Meteor.seo_index[s].link,function(){
+            Fiber(function(){
+              if(Meteor.seo_cache.find({url : Meteor.seo_index[s].link, title : Meteor.seo_index[s].title}).count()>0){
+                console.log(Meteor.seo_cache.update({url : Meteor.seo_index[s].link, title : Meteor.seo_index[s].title}, {html : browser.html() , md5 : MD5(browser.html())})); 
+              }else{
+                console.log(Meteor.seo_cache.insert({url : Meteor.seo_index[s].link , title : Meteor.seo_index[s].title, html : browser.html() , md5 : MD5(browser.html())}));
+              }
+            }).run();
+          });
+        }
+      }
+}).run();
+}});
 
