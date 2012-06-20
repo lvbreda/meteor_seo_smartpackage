@@ -2,8 +2,13 @@ meteor_seo_smartpackage
 =======================
 
 #Usage
+Use npm to install zombiejs, if errors about packages occur when running your server , copy the zombiejs and jsdom package from your node_modules dir to <meteor_install>/dev_bundle/lib/node_modules
 
 ##In live mode 
+Using headless browser
+
+    Meteor.seo_index.push({title : "", link : "/"});
+
 Add server side function that return the rendered html .(Serverside)
 
     Meteor.seo_index.push({title : "" , link : "/" , function : function(){
