@@ -27,9 +27,9 @@ Autoupdate will save every path and every modification of a page.
 
 You can fire the normal update whenever you want. If you want to save every search under a seperate title then update with search.value
  
-    Meteor.update("/update/lander","Update by Lander") /** link,title **/
-    Meteor.update("" , "Update by Lander") /** Will take the current pathname**/
-    Meteor.update("/update/ ,"") /**Will be the root direction.
+    Meteor.updateSeo("/update/lander","Update by Lander") /** link,title **/
+    Meteor.updateSeo("" , "Update by Lander") /** Will take the current pathname**/
+    Meteor.updateSeo("/update/ ,"") /**Will be the root direction.
 
 
 
